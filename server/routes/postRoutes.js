@@ -20,5 +20,7 @@ router.post('/addComment/:id', verify, postController.addComment);
 
 router.get('/getComments/:id', postController.getComments);
 
+router.post('/like/:id', verify, postController.likePost);
+
 
 module.exports = router;

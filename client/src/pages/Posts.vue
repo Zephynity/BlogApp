@@ -20,6 +20,8 @@ const comments = ref([]);
 const comment = ref('');
 const isCommenting = ref(false);
 
+const isLiking = ref({});
+
 const showCreateModal = ref(false);
 const showUpdateModal = ref(false);
 
@@ -577,6 +579,132 @@ function addComment() {
 }
 
 
+function isPostLiked(post) {
+    if (!currentUser.value || !post) {
+        return false;
+    }
+
+    if (!Array.isArray(post.likes)) {
+        return false;
+    }
+
+    return post.likes.some(
+        like => like?.toString() === currentUser.value.id?.toString()
+    );
+}
+
+
+function toggleLike(post) {
+
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+        notyf.error('Please login first.');
+        router.push('/login');
+
+        return;
+    }
+
+    if (!post) {
+        return;
+    }
+
+    if (isLiking.value[post._id]) {
+        return;
+    }
+
+    isLiking.value[post._id] = true;
+
+    axios.post(
+        `${import.meta.env.VITE_API_URL}/posts/like/${post._id}`,
+        {},
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    )
+    .then(response => {
+
+        console.log(
+            'Like response:',
+            response.data
+        );
+
+        const postIndex = posts.value.findIndex(
+            item => item._id === post._id
+        );
+
+        if (postIndex !== -1) {
+
+            const updatedPost = posts.value[postIndex];
+
+            if (!Array.isArray(updatedPost.likes)) {
+                updatedPost.likes = [];
+            }
+
+            const userId = currentUser.value.id.toString();
+
+            const likeIndex = updatedPost.likes.findIndex(
+                like => like?.toString() === userId
+            );
+
+            if (response.data.liked) {
+
+                // Add the current user's ID
+                if (likeIndex === -1) {
+                    updatedPost.likes.push(userId);
+                }
+
+            } else {
+
+                // Remove the current user's ID
+                if (likeIndex !== -1) {
+                    updatedPost.likes.splice(likeIndex, 1);
+                }
+
+            }
+        }
+
+    })
+    .catch(error => {
+
+        console.error(
+            'Failed to like post:',
+            error
+        );
+
+        const message =
+            error.response?.data?.message;
+
+        if (error.response?.status === 401) {
+
+            notyf.error(
+                'Please login again.'
+            );
+
+            localStorage.removeItem('token');
+
+            router.push('/login');
+
+        } else {
+
+            notyf.error(
+                message ||
+                'Failed to like post.'
+            );
+
+        }
+
+    })
+    .finally(() => {
+
+        isLiking.value[post._id] = false;
+
+    });
+}
+
+
 function formatDate(date) {
 
     if (!date) {
@@ -672,10 +800,7 @@ onMounted(() => {
 
 
         <!-- Facebook-style Feed -->
-        <div
-            v-else
-            class="post-feed"
-        >
+        <div v-else class="post-feed">
 
             <article
                 v-for="post in posts"
@@ -735,7 +860,13 @@ onMounted(() => {
                 <!-- Post Footer -->
                 <div class="post-footer">
 
+                    <!-- Post Stats -->
                     <div class="post-stats">
+
+                        <span>
+                            👍 {{ post.likes?.length || 0 }}
+                            {{ post.likes?.length === 1 ? 'Like' : 'Likes' }}
+                        </span>
 
                         <span>
                             💬 Comments
@@ -743,18 +874,35 @@ onMounted(() => {
 
                     </div>
 
-                    <button
-                        class="view-post-btn"
-                        @click="viewPost(post._id)"
-                        :disabled="isPostLoading"
-                    >
-                        View Post
-                    </button>
 
+                    <!-- Post Actions -->
+                    <div class="post-actions">
+
+                        <!-- Like Button -->
+                        <button
+                            type="button"
+                            class="post-action-btn"
+                            :class="{ liked: isPostLiked(post) }"
+                            :disabled="isLiking[post._id]"
+                            @click="toggleLike(post)"
+                        >
+                            {{ isPostLiked(post) ? '👍 Liked' : '👍 Like' }}
+                        </button>
+
+
+                        <!-- View Post -->
+                        <button
+                            type="button"
+                            class="view-post-btn"
+                            @click="viewPost(post._id)"
+                            :disabled="isPostLoading"
+                        >
+                            View Post
+                        </button>
+                    </div>
                 </div>
 
             </article>
-
         </div>
 
 
@@ -1630,5 +1778,53 @@ onMounted(() => {
             font-size: 23px;
         }
 
+    }
+    
+
+    .post-footer {
+        border-top: 1px solid #e9ecef;
+        padding-top: 12px;
+        margin-top: 15px;
+    }
+
+    .post-stats {
+        display: flex;
+        justify-content: space-between;
+        color: #65676b;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+
+    .post-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .post-action-btn {
+        flex: 1;
+        border: none;
+        background: transparent;
+        color: #65676b;
+        font-weight: 600;
+        padding: 8px 12px;
+        border-radius: 6px;
+        transition: background-color 0.2s ease;
+    }
+
+    .post-action-btn:hover {
+        background-color: #f0f2f5;
+    }
+
+    .post-action-btn.liked {
+        color: #0d6efd;
+    }
+
+    .post-action-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .view-post-btn {
+        flex: 1;
     }
 </style>

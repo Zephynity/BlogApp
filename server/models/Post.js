@@ -4,12 +4,14 @@ const postSchema = new mongoose.Schema(
     {
         title: {
             type: String,
-            required: true
+            required: true,
+            trim: true
         },
 
         content: {
             type: String,
-            required: true
+            required: true,
+            trim: true
         },
 
         author: {
@@ -25,33 +27,35 @@ const postSchema = new mongoose.Schema(
             }
         },
 
+        likes: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User'
+            }
+        ],
+
         comments: [
             {
-                comment: {
+                userId: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: 'User',
+                    required: true
+                },
+
+                username: {
                     type: String,
                     required: true
                 },
 
-                author: {
-                    id: {
-                        type: mongoose.Schema.Types.ObjectId,
-                        ref: 'User',
-                        required: true
-                    },
-
-                    username: {
-                        type: String,
-                        required: true
-                    }
-                },
-
-                createdAt: {
-                    type: Date,
-                    default: Date.now
+                comment: {
+                    type: String,
+                    required: true,
+                    trim: true
                 }
             }
         ]
     },
+
     {
         timestamps: true
     }

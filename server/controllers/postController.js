@@ -263,3 +263,65 @@ module.exports.getComments = async (req, res) => {
         });
     }
 };
+
+
+module.exports.likePost = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                message: 'Invalid post ID'
+            });
+        }
+
+        const post = await Post.findById(id);
+
+        if (!post) {
+            return res.status(404).json({
+                message: 'Post not found'
+            });
+        }
+
+        const userId = req.user.id.toString();
+
+        if (!post.likes) {
+            post.likes = [];
+        }
+
+        const likeIndex = post.likes.findIndex(
+            like => like.toString() === userId
+        );
+
+        if (likeIndex !== -1) {
+
+            post.likes.splice(likeIndex, 1);
+
+            await post.save();
+
+            return res.status(200).json({
+                message: 'Post unliked successfully',
+                liked: false,
+                likesCount: post.likes.length
+            });
+        }
+
+        post.likes.push(req.user.id);
+
+        await post.save();
+
+        return res.status(200).json({
+            message: 'Post liked successfully',
+            liked: true,
+            likesCount: post.likes.length
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        return res.status(500).json({
+            message: 'Failed to like post'
+        });
+    }
+};
