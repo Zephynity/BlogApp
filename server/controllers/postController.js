@@ -267,6 +267,11 @@ module.exports.getComments = async (req, res) => {
 
 module.exports.likePost = async (req, res) => {
     try {
+
+        console.log('LIKE REQUEST');
+        console.log('User:', req.user);
+        console.log('Post ID:', req.params.id);
+
         const { id } = req.params;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -280,6 +285,12 @@ module.exports.likePost = async (req, res) => {
         if (!post) {
             return res.status(404).json({
                 message: 'Post not found'
+            });
+        }
+
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({
+                message: 'Invalid user authentication'
             });
         }
 
@@ -318,7 +329,7 @@ module.exports.likePost = async (req, res) => {
 
     } catch (error) {
 
-        console.error(error);
+        console.error('LIKE POST ERROR:', error);
 
         return res.status(500).json({
             message: 'Failed to like post'
