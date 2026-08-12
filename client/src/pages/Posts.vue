@@ -57,7 +57,7 @@ function getPosts() {
     isLoading.value = true;
 
     axios.get(
-        'http://localhost:4000/posts/'
+        `${import.meta.env.VITE_API_URL}/posts/`
     )
     .then(response => {
 
@@ -95,7 +95,7 @@ function viewPost(id) {
     isPostLoading.value = true;
 
     axios.get(
-        `http://localhost:4000/posts/getPost/${id}`
+        `${import.meta.env.VITE_API_URL}/posts/getPost/${id}`
     )
     .then(response => {
         console.log('Post response:', response.data);
@@ -163,7 +163,7 @@ function createPost() {
 
 
     axios.post(
-        'http://localhost:4000/posts/createPost',
+        `${import.meta.env.VITE_API_URL}/posts/createPost`,
         {
             title: title.value.trim(),
             content: content.value.trim()
@@ -292,7 +292,7 @@ function updatePost() {
     isUpdating.value = true;
 
     axios.patch(
-        `http://localhost:4000/posts/updatePost/${selectedPost.value._id}`,
+        `${import.meta.env.VITE_API_URL}/posts/updatePost/${selectedPost.value._id}`,
         {
             title: updateTitle.value.trim(),
             content: updateContent.value.trim()
@@ -404,7 +404,7 @@ function deletePost() {
     }
 
     axios.delete(
-        `http://localhost:4000/posts/deletePost/${selectedPost.value._id}`,
+        `${import.meta.env.VITE_API_URL}/posts/deletePost/${selectedPost.value._id}`,
         {
             headers: {
                 Authorization: `Bearer ${token}`
@@ -468,7 +468,7 @@ function deletePost() {
 
 function getComments(id) {
     axios.get(
-        `http://localhost:4000/posts/getComments/${id}`
+        `${import.meta.env.VITE_API_URL}/posts/getComments/${id}`
     )
     .then(response => {
         console.log(
@@ -521,7 +521,7 @@ function addComment() {
     isCommenting.value = true;
 
     axios.post(
-        `http://localhost:4000/posts/addComment/${selectedPost.value._id}`,
+        `${import.meta.env.VITE_API_URL}/posts/addComment/${selectedPost.value._id}`,
         {
             comment: comment.value.trim()
         },

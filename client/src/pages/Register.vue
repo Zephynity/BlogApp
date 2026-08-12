@@ -27,7 +27,7 @@ const isActive = computed(() => {
 function register() {
 
     axios.post(
-        'http://localhost:4000/users/register',
+        `${import.meta.env.VITE_API_URL}/users/register`,
         {
             email: email.value.trim(),
             username: username.value.trim(),

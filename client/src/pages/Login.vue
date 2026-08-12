@@ -24,7 +24,7 @@ const isActive = computed(() => {
 function login() {
 
     axios.post(
-        'http://localhost:4000/users/login',
+        `${import.meta.env.VITE_API_URL}/users/login`,
         {
             login: loginInput.value.trim(),
             password: password.value
