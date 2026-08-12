@@ -616,7 +616,7 @@ function toggleLike(post) {
     isLiking.value[post._id] = true;
 
     axios.post(
-        `${import.meta.env.VITE_API_URL}/posts/like/${post._id}`,
+        `${import.meta.env.VITE_API_URL}/posts/like/${id}`,
         {},
         {
             headers: {
@@ -1779,7 +1779,7 @@ onMounted(() => {
         }
 
     }
-    
+
 
     .post-footer {
         border-top: 1px solid #e9ecef;
