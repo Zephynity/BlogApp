@@ -613,10 +613,7 @@ onMounted(() => {
                 </p>
             </div>
 
-            <button
-                class="create-post-btn"
-                @click="openCreateModal"
-            >
+            <button class="create-post-btn" @click="openCreateModal">
                 <span>+</span>
                 Create Post
             </button>
@@ -1308,7 +1305,7 @@ onMounted(() => {
 
     .create-post-btn {
         border: none;
-        background-color: #ff8c00;
+        background-color: #a2e436;
         color: white;
         font-weight: 600;
         padding: 10px 18px;
