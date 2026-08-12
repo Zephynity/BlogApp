@@ -268,9 +268,9 @@ module.exports.getComments = async (req, res) => {
 module.exports.likePost = async (req, res) => {
     try {
 
-        console.log('LIKE REQUEST');
-        console.log('User:', req.user);
+        console.log('========== LIKE POST ==========');
         console.log('Post ID:', req.params.id);
+        console.log('Authenticated User:', req.user);
 
         const { id } = req.params;
 
@@ -288,7 +288,12 @@ module.exports.likePost = async (req, res) => {
             });
         }
 
+        console.log('Post found:', post._id);
+        console.log('Current likes:', post.likes);
+
         if (!req.user || !req.user.id) {
+            console.log('ERROR: req.user.id is missing');
+
             return res.status(401).json({
                 message: 'Invalid user authentication'
             });
@@ -329,7 +334,9 @@ module.exports.likePost = async (req, res) => {
 
     } catch (error) {
 
-        console.error('LIKE POST ERROR:', error);
+        console.error('========== LIKE POST ERROR ==========');
+        console.error(error);
+        console.error(error.stack);
 
         return res.status(500).json({
             message: 'Failed to like post'
