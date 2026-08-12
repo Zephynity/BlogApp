@@ -601,7 +601,6 @@ function toggleLike(post) {
     if (!token) {
         notyf.error('Please login first.');
         router.push('/login');
-
         return;
     }
 
@@ -615,8 +614,13 @@ function toggleLike(post) {
 
     isLiking.value[post._id] = true;
 
+    const likeUrl =
+        `${import.meta.env.VITE_API_URL}/posts/like/${post._id}`;
+
+    console.log('Like URL:', likeUrl);
+
     axios.post(
-        `${import.meta.env.VITE_API_URL}/posts/like/${post._id}`,
+        likeUrl,
         {},
         {
             headers: {
@@ -643,26 +647,29 @@ function toggleLike(post) {
                 updatedPost.likes = [];
             }
 
-            const userId = currentUser.value.id.toString();
+            const userId =
+                currentUser.value.id.toString();
 
-            const likeIndex = updatedPost.likes.findIndex(
-                like => like?.toString() === userId
-            );
+            const likeIndex =
+                updatedPost.likes.findIndex(
+                    like =>
+                        like?.toString() === userId
+                );
 
             if (response.data.liked) {
 
-                // Add the current user's ID
                 if (likeIndex === -1) {
                     updatedPost.likes.push(userId);
                 }
 
             } else {
 
-                // Remove the current user's ID
                 if (likeIndex !== -1) {
-                    updatedPost.likes.splice(likeIndex, 1);
+                    updatedPost.likes.splice(
+                        likeIndex,
+                        1
+                    );
                 }
-
             }
         }
 
